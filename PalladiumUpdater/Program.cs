@@ -15,11 +15,13 @@ public static class Program
 		var copyFromRegex = new Regex("^--copyfrom=\"(.+)\"$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 		var copyToRegex = new Regex("^--copyto=\"(.+)\"$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 		var postUpdateRegex = new Regex("^--postupdate=\"(.+)\"$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-
+		var singleFileRegex = new Regex("^--singlefile$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+		
 		var pid = 0;
 		var copyFrom = "";
 		var copyTo = "";
 		var postUpdate = "";
+		bool singleFile = false;
 		foreach (string arg in args)
 		{
 			{
@@ -61,6 +63,10 @@ public static class Program
 					continue;
 				}
 			}
+
+			{
+				singleFile |= singleFileRegex.IsMatch(arg);
+			}
 		}
 
 		if (pid == default)
@@ -87,16 +93,33 @@ public static class Program
 			return 13;
 		}
 
-		if (!Directory.Exists(copyFrom))
+		if (!singleFile)
 		{
-			Console.Error.WriteLine($"The directory for copyfrom \"{copyFrom}\" does not exist.");
-			return 21;
-		}
+			if (!Directory.Exists(copyFrom))
+			{
+				Console.Error.WriteLine($"The directory for copyfrom \"{copyFrom}\" does not exist.");
+				return 21;
+			}
 
-		if (!Directory.Exists(copyTo))
+			if (!Directory.Exists(copyTo))
+			{
+				Console.Error.WriteLine($"The directory for copyto \"{copyTo}\" does not exist.");
+				return 22;
+			}
+		}
+		else
 		{
-			Console.Error.WriteLine($"The directory for copyto \"{copyTo}\" does not exist.");
-			return 22;
+			if (!File.Exists(copyFrom))
+			{
+				Console.Error.WriteLine($"The file for copyfrom \"{copyFrom}\" does not exist.");
+				return 23;
+			}
+
+			if (!File.Exists(copyTo))
+			{
+				Console.Error.WriteLine($"The file for copyto \"{copyTo}\" does not exist.");
+				return 24;
+			}
 		}
 
 		Process process;
@@ -120,25 +143,41 @@ public static class Program
 			return 31;
 		}
 
-		try
+		if (!singleFile)
 		{
-			Utils.DeleteDirContents(copyTo);
+			try
+			{
+				Utils.DeleteDirContents(copyTo);
+			}
+			catch (Exception e)
+			{
+				Console.Error.WriteLine($"Failed to delete directory \"{copyTo}\": {e}");
+				return 40;
+			}
+			
+			try
+			{
+				Utils.CopyDir(copyFrom, copyTo);
+			}
+			catch (Exception e)
+			{
+				Console.Error.WriteLine($"Failed to copy directory \"{copyFrom}\" to \"{copyTo}\": {e}");
+				return 41;
+			}
 		}
-		catch (Exception e)
+		else
 		{
-			Console.Error.WriteLine($"Failed to delete directory \"{copyTo}\": {e}");
-			return 40;
+			try
+			{
+				File.Copy(copyFrom, copyTo, true);
+			}
+			catch (Exception e)
+			{
+				Console.Error.WriteLine($"Failed to copy file \"{copyFrom}\" to \"{copyTo}\": {e}");
+				return 42;
+			}
 		}
 
-		try
-		{
-			Utils.CopyDir(copyFrom, copyTo);
-		}
-		catch (Exception e)
-		{
-			Console.Error.WriteLine($"Failed to copy directory \"{copyFrom}\" to \"{copyTo}\": {e}");
-			return 41;
-		}
 
 		try
 		{

@@ -64,4 +64,31 @@ public class ProgramTests
 		Assert.AreEqual(22, exitCode);
 	}
 	
+	[Test]
+	public void CopyFromDoesNotExist_FileMode()
+	{
+		var exitCode = PalladiumUpdater.Program.Main([
+			"--pid=99999999",
+			"--copyfrom=\"helloworld\"",
+			"--copyto=\"helloworld\"",
+			"--postupdate=\"finished.exe\"",
+			"--singlefile"
+		]);
+		Assert.AreEqual(23, exitCode);
+	}
+	
+	[Test]
+	public void CopyToDoesNotExist_FileMode()
+	{
+		var temp = Path.GetTempFileName();
+		var exitCode = PalladiumUpdater.Program.Main([
+			"--pid=99999999",
+			$"--copyfrom=\"{temp}\"",
+			"--copyto=\"helloworld\"",
+			"--postupdate=\"finished.exe\"",
+			"--singlefile"
+		]);
+		Assert.AreEqual(24, exitCode);
+	}
+	
 }
