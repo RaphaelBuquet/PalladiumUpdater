@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PalladiumUpdater", "PalladiumUpdater\PalladiumUpdater.csproj", "{5BA788AD-1FC5-447D-A53E-3603DDF1C1E0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UpdaterTests", "UpdaterTests\UpdaterTests.csproj", "{F04338FB-4E3A-48AD-BD5C-809F41D141AC}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PalladiumUpdater.Protocol", "PalladiumUpdater.Protocol\PalladiumUpdater.Protocol.csproj", "{7C9ADCFF-1EE4-4271-BE73-285B86D8462E}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{5BA788AD-1FC5-447D-A53E-3603DDF1C1E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5BA788AD-1FC5-447D-A53E-3603DDF1C1E0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5BA788AD-1FC5-447D-A53E-3603DDF1C1E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5BA788AD-1FC5-447D-A53E-3603DDF1C1E0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F04338FB-4E3A-48AD-BD5C-809F41D141AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F04338FB-4E3A-48AD-BD5C-809F41D141AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F04338FB-4E3A-48AD-BD5C-809F41D141AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F04338FB-4E3A-48AD-BD5C-809F41D141AC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C9ADCFF-1EE4-4271-BE73-285B86D8462E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C9ADCFF-1EE4-4271-BE73-285B86D8462E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C9ADCFF-1EE4-4271-BE73-285B86D8462E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C9ADCFF-1EE4-4271-BE73-285B86D8462E}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
