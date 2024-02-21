@@ -11,10 +11,13 @@ public static class Program
 {
 	public static int Main(string[] args)
 	{
+		using var stream = File.Open("SelfUpdate.log", FileMode.Create, FileAccess.Write);
+		using var writer = new StreamWriter(stream);
+		
 		var pidRegex = new Regex("^--pid=([0-9]+)$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-		var copyFromRegex = new Regex("^--copyfrom=\"(.+)\"$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-		var copyToRegex = new Regex("^--copyto=\"(.+)\"$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
-		var postUpdateRegex = new Regex("^--postupdate=\"(.+)\"$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+		var copyFromRegex = new Regex("^--copyfrom=(.+)$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+		var copyToRegex = new Regex("^--copyto=(.+)$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
+		var postUpdateRegex = new Regex("^--postupdate=(.+)$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 		var singleFileRegex = new Regex("^--singlefile$", RegexOptions.CultureInvariant | RegexOptions.IgnoreCase);
 		
 		var pid = 0;
@@ -71,25 +74,25 @@ public static class Program
 
 		if (pid == default)
 		{
-			Console.Error.WriteLine("Failed to parse args. No pid given. Expected: --pid=X --copyfrom=\"X\" --copyto=\"X\" --postupdate=\"X\"");
+			LogError(writer, "Failed to parse args. No pid given. Expected: --pid=X --copyfrom=\"X\" --copyto=\"X\" --postupdate=\"X\"");
 			return 10;
 		}
 
 		if (copyFrom == "")
 		{
-			Console.Error.WriteLine("Failed to parse args. No copyfrom given. Expected: --pid=X --copyfrom=\"X\" --copyto=\"X\" --postupdate=\"X\"");
+			LogError(writer, "Failed to parse args. No copyfrom given. Expected: --pid=X --copyfrom=\"X\" --copyto=\"X\" --postupdate=\"X\"");
 			return 11;
 		}
 
 		if (copyTo == "")
 		{
-			Console.Error.WriteLine("Failed to parse args. No copyto given. Expected: --pid=X --copyfrom=\"X\" --copyto=\"X\" --postupdate=\"X\"");
+			LogError(writer, "Failed to parse args. No copyto given. Expected: --pid=X --copyfrom=\"X\" --copyto=\"X\" --postupdate=\"X\"");
 			return 12;
 		}		
 		
 		if (postUpdate == "")
 		{
-			Console.Error.WriteLine("Failed to parse args. No postupdate given. Expected: --pid=X --copyfrom=\"X\" --copyto=\"X\" --postupdate=\"X\"");
+			LogError(writer, "Failed to parse args. No postupdate given. Expected: --pid=X --copyfrom=\"X\" --copyto=\"X\" --postupdate=\"X\"");
 			return 13;
 		}
 
@@ -97,13 +100,13 @@ public static class Program
 		{
 			if (!Directory.Exists(copyFrom))
 			{
-				Console.Error.WriteLine($"The directory for copyfrom \"{copyFrom}\" does not exist.");
+				LogError(writer, $"The directory for copyfrom \"{copyFrom}\" does not exist.");
 				return 21;
 			}
 
 			if (!Directory.Exists(copyTo))
 			{
-				Console.Error.WriteLine($"The directory for copyto \"{copyTo}\" does not exist.");
+				LogError(writer, $"The directory for copyto \"{copyTo}\" does not exist.");
 				return 22;
 			}
 		}
@@ -111,13 +114,13 @@ public static class Program
 		{
 			if (!File.Exists(copyFrom))
 			{
-				Console.Error.WriteLine($"The file for copyfrom \"{copyFrom}\" does not exist.");
+				LogError(writer, $"The file for copyfrom \"{copyFrom}\" does not exist.");
 				return 23;
 			}
 
 			if (!File.Exists(copyTo))
 			{
-				Console.Error.WriteLine($"The file for copyto \"{copyTo}\" does not exist.");
+				LogError(writer, $"The file for copyto \"{copyTo}\" does not exist.");
 				return 24;
 			}
 		}
@@ -129,17 +132,18 @@ public static class Program
 		}
 		catch (ArgumentException e)
 		{
-			Console.Error.WriteLine($"Failed to get process {pid}: {e}");
+			LogError(writer, $"Failed to get process {pid}: {e}");
 			return 30;
 		}
 
 		try
 		{
 			process.Kill();
+			process.WaitForExit(TimeSpan.FromSeconds(5));
 		}
 		catch (Exception e)
 		{
-			Console.Error.WriteLine($"Failed to kill {pid}: {e}");
+			LogError(writer, $"Failed to kill {pid}: {e}");
 			return 31;
 		}
 
@@ -151,7 +155,7 @@ public static class Program
 			}
 			catch (Exception e)
 			{
-				Console.Error.WriteLine($"Failed to delete directory \"{copyTo}\": {e}");
+				LogError(writer, $"Failed to delete directory \"{copyTo}\": {e}");
 				return 40;
 			}
 			
@@ -161,7 +165,7 @@ public static class Program
 			}
 			catch (Exception e)
 			{
-				Console.Error.WriteLine($"Failed to copy directory \"{copyFrom}\" to \"{copyTo}\": {e}");
+				LogError(writer, $"Failed to copy directory \"{copyFrom}\" to \"{copyTo}\": {e}");
 				return 41;
 			}
 		}
@@ -173,7 +177,7 @@ public static class Program
 			}
 			catch (Exception e)
 			{
-				Console.Error.WriteLine($"Failed to copy file \"{copyFrom}\" to \"{copyTo}\": {e}");
+				LogError(writer, $"Failed to copy file \"{copyFrom}\" to \"{copyTo}\": {e}");
 				return 42;
 			}
 		}
@@ -190,10 +194,16 @@ public static class Program
 		}
 		catch (Exception e)
 		{
-			Console.Error.WriteLine($"Failed to start post update process \"{postUpdate}\": {e}");
+			LogError(writer, $"Failed to start post update process \"{postUpdate}\": {e}");
 			return 50;
 		}
 
 		return 0;
+	}
+
+	public static void LogError(StreamWriter fileOutput, string message)
+	{
+		Console.Error.WriteLine(message);
+		fileOutput.WriteLine(message);
 	}
 }

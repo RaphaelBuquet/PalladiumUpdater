@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using Palladium.Logging;
 
 namespace PalladiumUpdater.Protocol;
 
@@ -6,9 +7,9 @@ public static partial class HttpDownloader
 {
 	public static readonly Regex VersionRegex = CreateVersionRegex();
 
-	public static async Task<string> GetArchive(HttpClient client, string url, string version,  string appName, IObserver<float> progressObserver)
+	public static async Task<string> GetArchive(HttpClient client, string url, string version,  string appName, IObserver<float> progressObserver, Log log)
 	{
-		Console.WriteLine($"Getting archive from {url}");
+		log.Info($"Getting archive from {url}");
 		string tempPath = Path.GetTempPath();
 		string tempDownloadFile = Path.Combine(tempPath, appName, "pending-archive-download");
 		if (File.Exists(tempDownloadFile))
@@ -101,9 +102,9 @@ public static partial class HttpDownloader
 		File.WriteAllText(versionFile, version);
 	}
 
-	public static async Task<string?> GetLatestVersion(HttpClient client, string url)
+	public static async Task<string?> GetLatestVersion(HttpClient client, string url, Log log)
 	{
-		Console.WriteLine($"Getting latest version from {url}");
+		log.Info($"Getting latest version from {url}");
 		HttpResponseMessage response = await client.GetAsync(url);
 		response.EnsureSuccessStatusCode();
 		string contents = await response.Content.ReadAsStringAsync();

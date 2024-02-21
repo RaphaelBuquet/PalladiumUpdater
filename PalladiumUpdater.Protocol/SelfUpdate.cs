@@ -23,7 +23,9 @@ public static class SelfUpdate
 		var psi = new ProcessStartInfo()
 		{
 			FileName = outOfProcessUpdaterExe,
-			Arguments = $"--pid={Environment.ProcessId} --copyfrom=\"{newAppExe}\" --copyto=\"{oldAppExe}\" --singlefile --postupdate=\"{oldAppExe}\""
+			Arguments = $"--pid={Environment.ProcessId} --copyfrom=\"{newAppExe}\" --copyto=\"{oldAppExe}\" --singlefile --postupdate=\"{oldAppExe}\"",
+			UseShellExecute = false, // hide terminal window popup 
+			CreateNoWindow = true // hide terminal window popup
 		};
 		Process? process = Process.Start(psi);
 		if (process == null)
